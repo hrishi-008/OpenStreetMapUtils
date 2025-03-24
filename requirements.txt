@@ -1,7 +1,7 @@
-folium==0.14.0
-geopy==2.4.0
-pandas==2.1.0
-numpy==1.24.3
-requests==2.31.0
-beautifulsoup4==4.12.2
-urllib3==2.0.7 
+folium
+geopy
+pandas
+numpy
+requests
+beautifulsoup4
+urllib3 
