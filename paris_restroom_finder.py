@@ -1,3 +1,37 @@
+"""
+Paris Public Restroom Finder
+===========================
+
+This script creates an interactive map of public restrooms in Paris using OpenStreetMap data.
+It includes detailed information about accessibility features and facility quality.
+
+Features:
+- Maps all public restrooms in Paris
+- Shows wheelchair accessibility
+- Indicates if facilities are free or paid
+- Displays opening hours
+- Shows baby changing facilities
+- Indicates drinking water availability
+- Provides a quality score based on available features
+
+Dependencies:
+- folium: For creating interactive maps
+- pandas: For data manipulation
+- requests: For API calls
+- geopy: For geocoding
+- urllib3: For HTTP requests
+
+Usage:
+    python paris_restroom_finder.py
+
+Output:
+    - paris_restroom_map.html: Interactive map with restroom locations
+    - Console output showing progress and results
+
+Author: [Your Name]
+Date: [Current Date]
+"""
+
 import folium
 import pandas as pd
 from folium.plugins import HeatMap
@@ -7,11 +41,18 @@ from geopy.geocoders import Nominatim
 from geopy.exc import GeocoderTimedOut
 import time
 import urllib3
+from datetime import datetime
 
 # Disable SSL warnings
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 def get_public_restrooms():
+    """
+    Fetch public restroom data from OpenStreetMap using the Overpass API.
+    
+    Returns:
+        list: List of dictionaries containing restroom information
+    """
     # Initialize Nominatim geocoder with a proper user agent
     geolocator = Nominatim(
         user_agent="ParisRestroomFinder/1.0 (https://github.com/yourusername/paris-restroom-finder; your.email@example.com)"
@@ -116,6 +157,10 @@ def get_public_restrooms():
     return data
 
 def create_restroom_map():
+    """
+    Create an interactive map of public restrooms in Paris.
+    Includes a heatmap layer and markers with detailed information.
+    """
     print("Fetching public restrooms in Paris...")
     data = get_public_restrooms()
     
@@ -175,9 +220,11 @@ def create_restroom_map():
     '''
     m.get_root().html.add_child(folium.Element(legend_html))
     
-    # Save the map
-    m.save('paris_restroom_map.html')
-    print(f"Map has been created and saved as 'paris_restroom_map.html'")
+    # Save the map with timestamp
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    filename = f'paris_restroom_map_{timestamp}.html'
+    m.save(filename)
+    print(f"Map has been created and saved as '{filename}'")
     print(f"Found {len(data)} public restrooms")
 
 if __name__ == "__main__":
