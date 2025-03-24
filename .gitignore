@@ -1,1 +1,4 @@
-.html
+# do not push .html files
+*.html
+
+
