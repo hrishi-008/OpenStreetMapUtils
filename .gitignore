@@ -1,4 +1,3 @@
 # do not push .html files
 *.html
 util-env/
-*.txt
