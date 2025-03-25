@@ -25,7 +25,7 @@ Usage:
     python paris_school_safety.py
 
 Output:
-    - paris_school_safety_map.html: Interactive map with school safety information
+    - output/paris_school_safety.html: Interactive map with school safety information
     - Console output showing progress and results
 
 Author: [Your Name]
@@ -42,9 +42,19 @@ from geopy.exc import GeocoderTimedOut
 import time
 import urllib3
 from datetime import datetime
+import os
 
 # Disable SSL warnings
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+
+def ensure_output_directory():
+    """
+    Create output directory if it doesn't exist.
+    """
+    output_dir = 'output'
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+    return output_dir
 
 def get_school_safety_data():
     """
@@ -294,9 +304,12 @@ def create_safety_map():
     # Add layer control
     folium.LayerControl().add_to(m)
     
-    # Save the map with timestamp
+    # Ensure output directory exists
+    output_dir = ensure_output_directory()
+    
+    # Save the map with timestamp in the output directory
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    filename = f'paris_school_safety_map_{timestamp}.html'
+    filename = os.path.join(output_dir, f'paris_school_safety_{timestamp}.html')
     m.save(filename)
     print(f"Map has been created and saved as '{filename}'")
     print(f"Found {len(schools_data)} schools and {len(safety_data)} safety features")

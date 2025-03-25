@@ -25,7 +25,7 @@ Usage:
     python paris_restroom_finder.py
 
 Output:
-    - paris_restroom_map.html: Interactive map with restroom locations
+    - output/paris_restroom_finder.html: Interactive map with restroom information
     - Console output showing progress and results
 
 Author: [Your Name]
@@ -42,9 +42,19 @@ from geopy.exc import GeocoderTimedOut
 import time
 import urllib3
 from datetime import datetime
+import os
 
 # Disable SSL warnings
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+
+def ensure_output_directory():
+    """
+    Create output directory if it doesn't exist.
+    """
+    output_dir = 'output'
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+    return output_dir
 
 def get_public_restrooms():
     """
@@ -158,29 +168,26 @@ def get_public_restrooms():
 
 def create_restroom_map():
     """
-    Create an interactive map of public restrooms in Paris.
-    Includes a heatmap layer and markers with detailed information.
+    Create an interactive map of public restrooms in Paris with accessibility information.
     """
-    print("Fetching public restrooms in Paris...")
-    data = get_public_restrooms()
+    print("Fetching restroom data in Paris...")
+    restroom_data = get_public_restrooms()
     
-    if not data:
-        print("No data found. Please try again later.")
+    if not restroom_data:
+        print("No restroom data found. Please try again later.")
         return
-    
-    df = pd.DataFrame(data)
     
     # Create a base map centered on Paris
     m = folium.Map(location=[48.8566, 2.3522], zoom_start=13)
     
     # Create heatmap data based on score
-    heat_data = [[row['lat'], row['lon'], row['score']] for index, row in df.iterrows()]
+    heat_data = [[row['lat'], row['lon'], row['score']] for index, row in pd.DataFrame(restroom_data).iterrows()]
     
     # Add heatmap layer
     HeatMap(heat_data).add_to(m)
     
     # Add markers for restrooms
-    for idx, row in df.iterrows():
+    for idx, row in pd.DataFrame(restroom_data).iterrows():
         # Determine marker color based on score
         if row['score'] >= 4:
             color = 'green'
@@ -191,18 +198,20 @@ def create_restroom_map():
         
         # Create popup content
         popup_content = f"""
-        <b>{row['name']}</b><br>
-        Wheelchair Accessible: {row['wheelchair']}<br>
-        Free: {row['fee']}<br>
-        Access: {row['access']}<br>
-        Opening Hours: {row['opening_hours']}<br>
-        Baby Change: {row['baby_change']}<br>
-        Drinking Water: {row['drinking_water']}
+        <div style="width: 300px;">
+            <h3 style="color: #2c3e50;">{row['name']}</h3>
+            <p><strong>Wheelchair Access:</strong> {row['wheelchair']}</p>
+            <p><strong>Free:</strong> {row['fee']}</p>
+            <p><strong>Access:</strong> {row['access']}</p>
+            <p><strong>Opening Hours:</strong> {row['opening_hours']}</p>
+            <p><strong>Baby Change:</strong> {row['baby_change']}</p>
+            <p><strong>Drinking Water:</strong> {row['drinking_water']}</p>
+        </div>
         """
         
         folium.CircleMarker(
             location=[row['lat'], row['lon']],
-            radius=5,
+            radius=8,
             color=color,
             fill=True,
             popup=popup_content,
@@ -220,12 +229,18 @@ def create_restroom_map():
     '''
     m.get_root().html.add_child(folium.Element(legend_html))
     
-    # Save the map with timestamp
+    # Add layer control
+    folium.LayerControl().add_to(m)
+    
+    # Ensure output directory exists
+    output_dir = ensure_output_directory()
+    
+    # Save the map with timestamp in the output directory
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    filename = f'paris_restroom_map_{timestamp}.html'
+    filename = os.path.join(output_dir, f'paris_restroom_finder_{timestamp}.html')
     m.save(filename)
     print(f"Map has been created and saved as '{filename}'")
-    print(f"Found {len(data)} public restrooms")
+    print(f"Found {len(restroom_data)} public restrooms")
 
 if __name__ == "__main__":
     create_restroom_map() 

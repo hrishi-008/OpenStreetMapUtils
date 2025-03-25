@@ -282,7 +282,7 @@ def create_business_map():
     
     # Save the map with timestamp
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    filename = f'paris_business_directory_{timestamp}.html'
+    filename = f'output/paris_business_directory_{timestamp}.html'
     m.save(filename)
     print(f"Map has been created and saved as '{filename}'")
     print(f"Found {len(business_data)} businesses")

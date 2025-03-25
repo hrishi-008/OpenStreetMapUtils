@@ -311,7 +311,7 @@ def create_parking_map():
     
     # Save the map with timestamp
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    filename = f'paris_parking_map_{timestamp}.html'
+    filename = f'output/paris_parking_map_{timestamp}.html'
     m.save(filename)
     print(f"Map has been created and saved as '{filename}'")
     print(f"Found {len(parking_data)} parking facilities and {len(charging_data)} charging stations")

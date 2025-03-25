@@ -3,7 +3,7 @@ Paris Emergency Service Locator
 ============================
 
 This script creates an interactive map of emergency services in Paris with detailed accessibility information.
-It includes information about hospitals, police stations, fire stations, and 24-hour pharmacies.
+It includes information about hospitals, police stations, fire stations, and pharmacies with their accessibility features.
 
 Features:
 - Maps emergency service locations (hospitals, police, fire stations, pharmacies)
@@ -24,7 +24,7 @@ Usage:
     python paris_emergency_services.py
 
 Output:
-    - paris_emergency_services.html: Interactive map with emergency service information
+    - output/paris_emergency_services.html: Interactive map with emergency service information
     - Console output showing progress and results
 
 Author: [Your Name]
@@ -41,9 +41,19 @@ from geopy.exc import GeocoderTimedOut
 import time
 import urllib3
 from datetime import datetime
+import os
 
 # Disable SSL warnings
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+
+def ensure_output_directory():
+    """
+    Create output directory if it doesn't exist.
+    """
+    output_dir = 'output'
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+    return output_dir
 
 def get_emergency_data():
     """
@@ -276,9 +286,12 @@ def create_emergency_map():
     # Add layer control
     folium.LayerControl().add_to(m)
     
-    # Save the map with timestamp
+    # Ensure output directory exists
+    output_dir = ensure_output_directory()
+    
+    # Save the map with timestamp in the output directory
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    filename = f'paris_emergency_services_{timestamp}.html'
+    filename = os.path.join(output_dir, f'paris_emergency_services_{timestamp}.html')
     m.save(filename)
     print(f"Map has been created and saved as '{filename}'")
     print(f"Found {len(emergency_data)} emergency services")
